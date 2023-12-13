@@ -1,1 +1,353 @@
-hey i am rishi.
+ICT 10
+#include "Ultrasonic.h"
+Ultrasonic ultrasonic(2); // Output Pin void setup()
+{
+Serial.begin(9600); // 9600 MHz band }
+void loop()
+{
+long RangeInInches;
+long RangeInCentimeters;
+Serial.println("The distance to obstacles in front is: ");
+RangeInInches = ultrasonic.MeasureInInches();
+Serial.print(RangeInInches); // 0~157 inches
+Serial.println(" inch");
+delay(2000);
+RangeInCentimeters = ultrasonic.MeasureInCentimeters(); // two measurements should keep an
+interval
+Serial.print(RangeInCentimeters); // 0~400cm Serial.println(" cm");
+delay(2000);
+}
+  2.
+ #include "DHT.h"
+#define DHTPIN 2 // what pin we're connected to 5
+#define DHTTYPE DHT11 //DHT 11
+DHT dht(DHTPIN, DHTTYPE);
+#if defined(ARDUINO_ARCH_AVR)
+#define SERIAL Serial
+#elif defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_SAM) #define SERIAL SerialUSB
+#else
+#define SERIAL Serial
+#endif
+void setup()
+{
+SERIAL.begin(115200); SERIAL.println("DHT11 test!"); Wire.begin();
+dht.begin();
+}
+void loop()
+{
+float temp_hum_val[2] = {0};
+if (!dht.readTempAndHumidity(temp_hum_val))
+{
+SERIAL.print("Humidity: "); SERIAL.print(temp_hum_val[0]); SERIAL.print(" %\t"); SERIAL.print("Temperature: "); SERIAL.print(temp_hum_val[1]); SERIAL.println(" *C");
+}
+else
+{
+SERIAL.println("Failed to get temprature and humidity value.");
+}
+delay(1500); }
+3.
+
+3.
+ int sensorPin = 2; // select the input pin for the potentiometer
+int ledPin = 15; // select the pin for the LED
+int sensorValue = 0; // variable to store the value coming from the sensor int suppl = 23;
+void setup()
+{
+// declare the ledPin as an OUTPUT:
+pinMode(ledPin, OUTPUT); pinMode(suppl, OUTPUT); Serial.begin(115200); digitalWrite(suppl, HIGH);
+}
+void loop()
+{
+else
+{
+digitalWrite(ledPin, LOW);
+}
+// turn the ledPin on
+// stop the program for <sensorValue> milliseconds:
+// turn the ledPin off:
+// stop the program for for <sensorValue> milliseconds: delay(1000);
+}
+ // read the value from the sensor:
+sensorValue = analogRead(sensorPin); Serial.println(sensorValue);
+if (sensorValue < 1500)
+{
+digitalWrite(ledPin, HIGH); }
+
+
+
+ICT 9
+
+1.
+const int ledpin = 2;
+void setup() { pinMode(ledpin,OUTPUT); }
+Void loop() { Digitalwrite(ledpin,HIGH); delay(10); Digitalwrite(ledpin,LOW); delay(10);
+}
+2.
+const int ledpin = 2;
+int brightness = 0;
+int fadeamount = 5;
+void setup() { pinMode(ledpin,OUTPUT);
+}
+Void loop() { analogWrite(ledpin,brightness); brightness += fadeamount
+if (brightness <= 0 || brightness >= 255) {
+fadeamount =-fadeamount;
+}
+delay(30);
+}
+3.
+
+const int ledpin = 2; const int supply = 19; const int ground = 21; const int buttonpin = 22; int buttonstate = 0;
+void setup() { pinMode(ledpin,OUTPUT); pinMode(ground,OUTPUT); pinMode(supply,OUTPUT); pinMode(buttonpin,INPUT); digitalWrite(supply,HIGH); digitalWrite(ground,LOW);
+}
+Void loop()
+{
+buttonstate = digitalRead(buttonpin); analogWrite(ledpin,brightness); brightness += fadeamount
+if (buttonstate == HIGH) {
+digitalWrite(ledpin,HIGH); }
+else
+{ digitalWrite(ledpin,LOW);
+} }
+
+ICT 11
+1.
+#include <BluetoothSerial.h>
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED) #error Bluetooth is not enabled !Please run `make menuconfig` to and enable it
+#endif
+ 
+#if !defined(CONFIG_BT_SPP_ENABLED)
+#error Serial Bluetooth not available or not enabled. It is only available for the ESP32 chip. #endif BluetoothSerial SerialBT;
+#define BT_DISCOVER_TIME 10000
+static bool btScanAsync = true;
+static bool btScanSync = true;
+void btAdvertisedDeviceFound(BTAdvertisedDevice *pDevice)
+{
+Serial.printf("Found a device asynchronously: %s\n", pDevice->toString().c_str()); }
+void setup()
+{
+Serial.begin(115200);
+SerialBT.begin("ESP32test"); // Bluetooth device name Serial.println("The device started, now
+you can pair it with bluetooth!");
+if (btScanAsync)
+{
+Serial.print("Starting discoverAsync...");
+if (SerialBT.discoverAsync(btAdvertisedDeviceFound)) {
+Serial.println("Findings will be reported in \"btAdvertisedDeviceFound\""); delay(10000);
+Serial.print("Stopping discoverAsync... ");
+SerialBT.discoverAsyncStop();
+Serial.println("stopped"); }
+else
+{
+Serial.println("Error on discoverAsync f.e. not workin after a \"connect\"");
+} }
+if (btScanSync)
+{
+Serial.println("Starting discover...");
+BTScanResults *pResults = SerialBT.discover(BT_DISCOVER_TIME); if (pResults)
+pResults->dump(&Serial); else
+Serial.println("Error on BT Scan, no result!"); }
+}
+void loop()
+{
+delay(100);
+}
+ 
+2.
+
+#include "BluetoothSerial.h"
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED) #error Bluetooth is not enabled !Please run `make menuconfig` to and enable it
+#endif
+#if !defined(CONFIG_BT_SPP_ENABLED)
+#error Serial Bluetooth not available or not enabled. It is only available for the ESP32 chip. #endif BluetoothSerial SerialBT;
+void setup()
+{
+Serial.begin(115200);
+SerialBT.begin("ESP32test"); // Bluetooth device name Serial.println("The device started, now you can pair it with bluetooth!");
+}
+void loop()
+{
+if (Serial.available())
+{
+SerialBT.write(Serial.read());
+}
+if (SerialBT.available())
+{
+BTData = SerialBT.read();
+Serial.write(BTData); }
+delay(20); }
+ 3.
+#include "BluetoothSerial.h"
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED) #error Bluetooth is not enabled !Please run `make menuconfig` to and enable it
+#endif
+#if !defined(CONFIG_BT_SPP_ENABLED)
+#error Serial Bluetooth not available or not enabled. It is only available for the ESP32 chip. #endif BluetoothSerial SerialBT;
+const int led = 2;
+byte BTData;
+void setup()
+{
+pinMode(led, OUTPUT);
+Serial.begin(115200);
+SerialBT.begin("ESP32test"); // Bluetooth device name Serial.println("The device started, now
+you can pair it with bluetooth!");
+}
+void loop()
+{
+if (Serial.available())
+
+{
+SerialBT.write(Serial.read());
+}
+if (SerialBT.available()) {
+BTData = SerialBT.read();
+Serial.write(BTData); }
+if (BTData == '1')
+{
+digitalWrite(led, HIGH);
+}
+else if (BTData == '0')
+{
+digitalWrite(led, LOW);
+}
+delay(20); }
+ICT 13
+
+CODES: 1.
+Page No: 36
+  #include "WiFi.h" void setup()
+{
+Serial.begin(115200); WiFi.mode(WIFI_STA); WiFi.disconnect(); delay(100);
+Serial.println("Setup done"); }
+void loop()
+{
+Serial.println("scan start"); int n = WiFi.scanNetworks(); Serial.println("scan done"); if (n == 0)
+{
+Serial.println("no networks found"); }
+else
+{
+Serial.print(n);
+Serial.println(" networks found"); for (int i = 0; i < n; ++i)
+{
+// Print SSID and RSSI for each network found Serial.print(i + 1);
+Serial.print(": "); Serial.print(WiFi.SSID(i)); Serial.print(" (");
+Serial.print(WiFi.RSSI(i));
+Serial.print(")");
+Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? " " : "*");
+delay(10); }
+} Serial.println(""); delay(5000);
+}
+ 
+2.
+
+#include <WiFi.h>
+const char *ssid = "SpyDer";
+const char *password = "123456789"; WiFiServer server(80);
+void setup()
+{
+Serial.begin(115200);
+pinMode(2, OUTPUT); // set the LED pin mode delay(10);
+Serial.println();
+Serial.println();
+Serial.print("Connecting to "); Serial.println(ssid);
+WiFi.begin(ssid, password);
+while (WiFi.status() != WL_CONNECTED) {
+delay(500);
+Serial.print("."); }
+Serial.println(""); Serial.println("WiFi connected."); Serial.println("IP address: "); Serial.println(WiFi.localIP()); server.begin();
+}
+int value = 0; void loop()
+{
+WiFiClient client = server.available(); // listen for incoming clients
+if (client)
+ {
+if (client.available())
+{
+// if you get a client,
+Serial.println("New Client."); // print a message out the serial port
+String currentLine = ""; // make a String to hold incoming data from the client while (client.connected()) // loop while the client's connected
+{
+// if there's bytes to read from the client, char c = client.read(); Serial.write(c); // print it out the serial monitor
+if (c == '\n')
+{ // if the byte is a newline character
+if (currentLine.length() == 0)
+{
+client.println("HTTP/1.1 200 OK"); client.println("Content-type:text/html");
+// read a byte, then
+  
+3.
+
+  client.println();
+client.print("Click <a href=\"/H\">here</a> to turn the LED on pin 2 on.<br>"); client.print("Click <a href=\"/L\">here</a> to turn the LED on pin 2 off.<br>"); client.println();
+break;
+}
+else
+{ // if you got a newline, then clear currentLine:
+currentLine = ""; }
+}
+else if (c != '\r')
+{ // if you got anything else but a carriage return character, currentLine += c;
+currentLine
+}
+// add it to the end of the
+// Check to see if the client request was "GET /H" or "GET /L": if (currentLine.endsWith("GET /H")) {
+digitalWrite(2, HIGH); // GET /H turns the LED on }
+if (currentLine.endsWith("GET /L"))
+{
+digitalWrite(2, LOW); // GET /L turns the LED off
+} }
+}
+// close the connection: client.stop();
+Serial.println("Client Disconnected.");
+}
+3.
+
+#include<WiFi.h>
+#include<WiFiClient.h>
+#include<WiFiAP.h>
+#define LED_BUILTIN 2 // Led Signal Pin const char *ssid = "Group5"; const char *password = "12345678";
+WiFiServer server(80); void setup()
+{
+pinMode(LED_BUILTIN, OUTPUT); Serial.begin(115200);
+Serial.println();
+Serial.println("Configuring access point..."); WiFi.softAP(ssid, password);
+IPAddress myIP = WiFi.softAPIP(); Serial.print("AP IP address: ");
+   
+
+  Serial.println(myIP); server.begin(); Serial.println("Server started");
+}
+void loop()
+{
+WiFiClient client = server.available(); // listen for incoming clients
+if (client)
+ {
+if (client.available())
+{
+// if you get a client,
+Serial.println("New Client."); // print a message out the serial port
+String currentLine = ""; // make a String to hold incoming data from the client while (client.connected()) // loop while the client's connected
+{
+// if there's bytes to read from the client, char c = client.read(); Serial.write(c); // print it out the serial monitor
+if (c == '\n')
+{ // if the byte is a newline character
+if (currentLine.length() == 0)
+{
+client.println("HTTP/1.1 200 OK"); client.println("Content-type:text/html");
+client.println();
+client.print("Click <a href=\"/H\">here</a> to turn ON the LED.<br>"); client.print("Click <a href=\"/L\">here</a> to turn OFF the LED.<br>"); client.println();
+break;
+}
+else
+{ // if you got a newline, then clear currentLine: currentLine = "";
+} }
+else if (c != '\r')
+{ // if you got anything else but a carriage return character, currentLine += c; currentLine
+}
+if (currentLine.endsWith("GET /H")) {
+digitalWrite(LED_BUILTIN, HIGH); // GET /H turns the LED on }
+if (currentLine.endsWith("GET /L"))
+{
+digitalWrite(LED_BUILTIN, LOW); // GET /L turns the LED off
+} }
+}
+// close the connection: client.stop();
+
+Serial.println("Client Disconnected.");
+}
